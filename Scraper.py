@@ -17,7 +17,7 @@ new_postal = []
 # Function to login using Selenium
 def login_with_requests():
     # Path to Chrome webdriver
-    driver_path = r'yourpath'
+    driver_path = r'your_path'
     service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service)
     driver.get('https://www.zolo.ca/sign-in')
@@ -26,7 +26,7 @@ def login_with_requests():
 
     # Find and input email
     email = WebDriverWait(driver, 100).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'input.text-input.rounded.fill-grey-bg.xs-pr4')))
-    for char in 'YOUR_EMAIL':
+    for char in 'your_email':
         email.send_keys(char)
         time.sleep(0.1)
 
@@ -36,7 +36,7 @@ def login_with_requests():
 
     # Find and input PIN
     pin = WebDriverWait(driver, 100).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.text-input.rounded.fill-grey-bg')))
-    for char1 in 'YOUR_PIN':
+    for char1 in 'your_pin':
         pin.send_keys(char1)
         time.sleep(0.1)
 
@@ -99,7 +99,7 @@ def login_with_requests():
     driver.get(final_url)  # Open final URL in browser
 
     # Scraping addresses and cities
-    if pages >= 1:
+    if pages >= 1 and start_on == 1:
         if area == "greater%20toronto%20area":
             area = "Greater+Toronto+Area"
             for i in range(start_on, pages+1):
@@ -132,10 +132,42 @@ def login_with_requests():
                     address_text = address.get_text()  # Call get_text() on each individual element
                     new_address.append(address_text)
 
+    elif pages >= 1 and start_on > 1:
+        if area == "greater%20toronto%20area":
+            area = "Greater+Toronto+Area"
+            for i in range(start_on, start_on+pages+1):
+                url2 = "https://www.zolo.ca/index.php?sarea={num}&s={i_i}".format(num=area, i_i=i)
+                driver.get(url2)
+                time.sleep(5)
+                soup = bs4.BeautifulSoup(driver.page_source, 'lxml')
+                addresses = soup.find_all('span', itemprop='streetAddress')
+                cities = soup.find_all('span', itemprop='addressLocality')
+                for city in cities:
+                    city1 = city.get_text()
+                    new_cities.append(city1)
+                for address in addresses:
+                    address_text = address.get_text()  # Call get_text() on each individual element
+                    new_address.append(address_text)
+        else:
+            if "%20" in area:
+                area = area.replace("%20", "-")
+            for i in range(start_on, start_on+pages+1):
+                url3 = "https://www.zolo.ca/{num}-real-estate/page-{i_i}".format(num=area, i_i=i)
+                driver.get(url3)
+                time.sleep(5)
+                soup = bs4.BeautifulSoup(driver.page_source, 'lxml')
+                addresses = soup.find_all('span', itemprop='streetAddress')
+                cities = soup.find_all('span', itemprop='addressLocality')
+                for city in cities:
+                    city1 = city.get_text()
+                    new_cities.append(city1)
+                for address in addresses:
+                    address_text = address.get_text()  # Call get_text() on each individual element
+                    new_address.append(address_text)
 
 # Function to get postal code from Google Maps API
 def get_postal_code(addy, city):
-    API_KEY = 'YOUR_API_KEY'  # Your Google Maps API key
+    API_KEY = 'your_api'  # Your Google Maps API key
     base_url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {
         "address": addy,
@@ -145,7 +177,6 @@ def get_postal_code(addy, city):
 
     response = requests.get(base_url, params=params)
     results = response.json()
-    print(results)  # Debug: print API response
 
     if results["status"] == "OK":
         address_components = results["results"][0]["address_components"]
