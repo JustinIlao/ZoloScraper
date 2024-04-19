@@ -17,7 +17,7 @@ new_postal = []
 # Function to login using Selenium
 def login_with_requests():
     # Path to Chrome webdriver
-    driver_path = r'C:\Users\justi\Documents\chromedriver-win64\chromedriver.exe'
+    driver_path = r'yourpath'
     service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service)
     driver.get('https://www.zolo.ca/sign-in')
