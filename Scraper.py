@@ -93,7 +93,6 @@ def login_with_requests():
         final_url = f"{url}?{query_string}"
         actual_url1 = ""
 
-        print("Final URL:", final_url)
         break  # Exit loop after URL is generated
 
     driver.get(final_url)  # Open final URL in browser
